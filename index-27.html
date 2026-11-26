@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Toonora Studios — Animation Studio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="style.css"></head><body>
+<div class="app">
+<header class="top"><div class="logo">TOONORA<i>STUDIOS</i></div><span class="tag">Create · Animate · Share</span>
+<label class="ep"><input id="title" maxlength="80" placeholder="Episode title" aria-label="Episode title"><span>✎</span></label><div class="sp"></div>
+<button id="play" class="wb">▶ Preview</button><button id="bexp" class="bb">🎞 Render Video</button><button id="bprof" class="av" aria-label="Project menu">👤</button></header>
+<nav class="rail" aria-label="Studio sections">
+<button data-nav="home" class="on"><b>🏠</b>Home</button><button data-nav="chars"><b>👥</b>Characters</button><button data-nav="scenes"><b>🖼</b>Scenes</button>
+<button data-nav="anim"><b>🏃</b>Animation</button><button data-nav="voice"><b>🎙</b>Voice Studio</button><button id="bscript"><b>🎞</b>Episode Builder</button>
+<button data-nav="export"><b>⬇</b>Export</button><button data-nav="pro" class="pro"><b>👑</b>Pro Mode</button></nav>
+<aside class="card lib"><div class="hd"><h3>Character Library</h3><button class="pc sm" id="addc2" aria-label="Add character">+</button></div><div id="lib"></div>
+<button class="bb wide" id="addc">Add Character +</button>
+<div class="hd" style="margin-top:14px"><h3>Backgrounds</h3><button class="lnk" id="seeall">See All ›</button></div><div id="bgs"></div></aside>
+<section class="mid">
+<div class="tbar"><label class="chip">Scene: <select id="scsel"></select></label><button id="undo" class="chip" aria-label="Undo">↶</button><button id="redo" class="chip" aria-label="Redo">↷</button>
+<div class="chip zm"><button id="zout" aria-label="Zoom out">−</button><span id="zv">100%</span><button id="zin" aria-label="Zoom in">+</button></div><button id="grid" class="chip" aria-label="Grid">▦</button><div class="sp"></div><button id="fit" class="chip">Fit Screen ⛶</button></div>
+<div class="stagew"><canvas id="cv" width="1280" height="720"></canvas></div>
+<span id="st">Add a character from the library to begin.</span>
+<div class="trans"><button id="tplay" class="pc big" aria-label="Play">▶</button><button id="tprev" class="pc sm2" aria-label="Previous scene">⏮</button><button id="tnext" class="pc sm2" aria-label="Next scene">⏭</button><span id="tt">00:00 / 00:30</span><div class="sp"></div>
+<button id="ns" class="bb">+ Add Scene +</button><button id="dup" class="chip">⧉ Duplicate</button><button id="del" class="chip rd">🗑 Delete</button></div>
+<div class="tl" id="tlw"><div class="tlr"><span></span><div class="ruler" id="ruler"></div></div>
+<div class="tlr"><span>🖼 Scene</span><div class="trk" id="trkS"></div></div><div class="tlr"><span>👥 Characters</span><div class="trk" id="trkC"></div></div>
+<div class="tlr"><span>🔊 Audio</span><div class="trk" id="trkA"><canvas id="wav"></canvas></div></div><div class="tlr"><span>🎵 Music</span><div class="trk" id="trkM"></div></div><div id="head"></div></div>
+</section>
+<aside class="right"><div class="card pnl"><div class="tabs"><button data-tab="c" class="on">👤 Character</button><button data-tab="a">🏃 Animation</button><button data-tab="v">🎙 Voice</button></div>
+<div id="tab-c"><div class="who"><img id="wa" alt=""><div><b id="wn"></b><small id="wr"></small></div><button class="bb" id="wch">Change</button></div>
+<h4>Expression</h4><div id="ex" class="exg"></div><h4>Action</h4><div id="po" class="acg"></div>
+<h4>Voice</h4><div class="vrow"><button id="vplay" class="pc sm2" aria-label="Play voice sample">▶</button><select id="vsel" aria-label="Voice"></select></div>
+<h4>Dialogue</h4><div class="dlg"><textarea id="tx" rows="2" maxlength="200" placeholder="Type a line for the selected character…"></textarea><span id="cnt">0 / 200</span></div>
+<button class="bb wide" id="add">Add line</button></div>
+<div id="tab-a" hidden><h4>Selected item</h4><div class="row"><button id="flip" class="chip">Flip</button><button id="sm" class="chip">Smaller</button><button id="lg" class="chip">Larger</button></div>
+<div class="row" style="margin-top:8px"><button id="brep" class="chip">Replace pose image</button><button id="rm" class="chip rd">Remove</button></div><small class="hint">Drag characters, text and stickers on the stage. Press Delete to remove the selected one.</small></div>
+<div id="tab-v" hidden><h4>Lines in this scene</h4><div id="lines"></div><small class="hint">Record with the microphone or upload a voice file for each line. Lines without a voice show as captions in the video.</small></div></div>
+<div class="card"><h3>Quick Tools</h3><div class="qg">
+<button data-tool="text"><b style="background:#2f6bff">T</b>Text</button><button data-tool="sticker"><b style="background:#ffb020">★</b>Sticker</button><button data-tool="effect"><b style="background:#7c4dff">✦</b>Effect</button>
+<button data-tool="transition"><b style="background:#14b8a6">⇄</b>Transition</button><button data-tool="filter"><b style="background:#ef476f">◐</b>Filter</button><button data-tool="sfx"><b style="background:#5b4bdb">🔊</b>Sound FX</button></div></div></aside>
+</div>
+<input type="file" id="fmus" accept="audio/*" hidden><input type="file" id="fproj" accept=".json,application/json" hidden><input type="file" id="fline" accept="audio/*" hidden><input type="file" id="frep" accept="image/*" hidden><input type="file" id="fbg" accept="image/*" hidden>
+<div class="mod" id="sp" hidden><div class="mc"><div class="hd"><h3>Episode Builder — script</h3><button class="chip" data-close>✕</button></div><small>One line per speaker: Name (expression, pose): text. Start a scene with # Scene | Park, Street or Sunset.</small>
+<textarea id="stx" rows="10" spellcheck="false"></textarea><div class="row" style="margin-top:8px"><button class="bb" id="sbuild">Build episode from script</button><button class="chip" id="ssample">Insert sample</button></div><small id="serr"></small></div></div>
+<div class="mod" id="m-export" hidden><div class="mc"><div class="hd"><h3>Export &amp; project</h3><button class="chip" data-close>✕</button></div>
+<h4>Video shape</h4><select id="asp" class="f"><option value="16:9">16:9 landscape (YouTube)</option><option value="9:16">9:16 vertical (TikTok, Reels, Shorts)</option></select>
+<div class="row" style="margin-top:12px"><button class="bb" id="bmus">🎵 Music</button><button class="chip" id="bsave">💾 Save project</button><button class="chip" id="bload">📂 Load project</button></div>
+<p><button class="bb wide" id="mrender">🎞 Render Video</button></p></div></div>
+<div class="mod" id="m-bg" hidden><div class="mc"><div class="hd"><h3>Backgrounds</h3><button class="chip" data-close>✕</button></div><p>Use your own Wonderdale artwork as this scene’s background.</p>
+<div class="row"><button class="bb" id="bbgu">Upload image</button><button class="chip" id="bgclr">Remove uploaded image</button></div></div></div>
+<div class="mod" id="m-tool" hidden><div class="mc"><div class="hd"><h3 id="mtt"></h3><button class="chip" data-close>✕</button></div><div id="mtb" class="row"></div></div></div>
+<div class="mod" id="m-pro" hidden><div class="mc"><div class="hd"><h3>👑 Pro Mode</h3><button class="chip" data-close>✕</button></div><p>Pro Mode is not built yet. It’s reserved for things like walk cycles, lip-sync and automatic AI voices.</p></div></div>
+<div class="mod" id="res" hidden><div class="mc"><div class="hd"><h3>Rendered episode</h3><button class="chip" data-close>✕</button></div><video id="rv" controls playsinline></video>
+<div class="row" style="margin-top:8px"><button class="bb" id="rsave">💾 Save video</button><small id="rs"></small></div></div></div>
+<script src="character-max.js"></script>
+<script src="character-mia.js"></script>
+<script src="character-oliver.js"></script>
+<script src="app.js"></script>
+</body></html>
