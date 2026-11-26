@@ -5,10 +5,10 @@ const BUF=new WeakMap(),IM={},MUS={buf:null};
 const blank=()=>({bg:0,bgImg:null,chars:[],lines:[],items:[],fx:'none',flt:'none',tr:'fade'});
 const base=()=>({title:'Episode 1: The Impossible Delivery',aspect:'16:9',music:null,voices:{},scenes:[blank()]});
 try{const j=JSON.parse(localStorage.getItem('toonora2')||'null');if(j&&Array.isArray(j.scenes)&&j.scenes.length&&j.scenes.every(s=>Array.isArray(s.chars)&&Array.isArray(s.lines)))P=Object.assign(base(),j)}catch(e){}
-P=P||base();
+P=P||base();P.scenes.forEach(s=>{s.chars=s.chars.filter(c=>D[c.id]);s.lines=s.lines.filter(l=>D[l.id])});
 const sc=()=>P.scenes[cur],portrait=()=>P.aspect==='9:16';
 const msg=t=>{$('#st').textContent=t};
-function persist(){try{localStorage.setItem('toonora2',JSON.stringify(P,(k,v)=>(k==='audio'||k==='bgImg'||k==='music'||k==='dur')?undefined:v))}catch(e){}}
+function persist(){try{localStorage.setItem('toonora2',JSON.stringify(P,(k,v)=>(k==='audio'||k==='bgImg'||k==='music'||k==='dur'||k==='custom')?undefined:v))}catch(e){}}
 (async()=>{try{if(window.claude&&claude.use)dl=await claude.use('downloads')}catch(e){}})();
 /* ---------- images ---------- */
 const ok=i=>i&&i.complete&&i.naturalWidth>0;
@@ -82,7 +82,7 @@ async function micToggle(i){
   mr.start();ui();msg('Recording… tap Stop when finished.')}
  catch(e){rec=null;recIdx=-1;msg('The microphone is not available here. Use “Voice file” to upload a recording instead.');ui()}}
 /* ---------- playback / export ---------- */
-function plan(){const lead=P.title?2:0;let t=lead;const ev=[];P.scenes.forEach((s,si)=>{const t0=si?t:0,L=[];s.lines.forEach(l=>{const d=l.audio&&l.dur?l.dur:Math.max(1.8,l.text.length*.07+.6);L.push({l,t0:t,t1:t+d});t+=d+.25});if(!s.lines.length)t+=2;t+=.3;ev.push({si,t0,t1:t,L})});return{ev,total:t,lead}}
+function plan(){const lead=P.title?2:0;let t=lead;const ev=[];P.scenes.forEach((s,si)=>{const t0=si?t:0,L=[];s.lines.forEach(l=>{const d=l.audio&&l.dur?l.dur:(l.hold>0?l.hold:Math.max(1.8,l.text.length*.07+.6));L.push({l,t0:t,t1:t+d});t+=d+.25});if(!s.lines.length)t+=2;t+=.3;ev.push({si,t0,t1:t,L})});return{ev,total:t,lead}}
 function setBtns(){$('#play').textContent=run&&!run.record?'■ Stop':'▶ Preview';$('#tplay').textContent=run&&!run.record?'■':'▶';$('#bexp').textContent=run&&run.record?'■ Cancel render':'🎞 Render Video';$('#play').disabled=!!(run&&run.record);$('#tplay').disabled=!!(run&&run.record);$('#bexp').disabled=!!(run&&!run.record)}
 async function play(record){
  if(run){finish(true);return}if(busy)return;
@@ -147,7 +147,7 @@ function lineRow(l,i){const w=document.createElement('div');w.className='lr';con
  const sm=document.createElement('small');sm.textContent=l.audio?'🔊 Voice added'+(l.dur?' ('+l.dur.toFixed(1)+' s)':''):'No voice yet — captions only in the video';
  w.append(h,bar,sm);return w}
 const ICON={Standing:'🧍',Walking:'🚶',Talking:'💬',Thinking:'🤔',Pointing:'👉',Waving:'👋',Running:'🏃',Excited:'🙌'};
-const key=()=>JSON.stringify(P,(k,v)=>(k==='audio'||k==='bgImg'||k==='music')?(v?1:0):v);
+const key=()=>JSON.stringify(P,(k,v)=>(k==='audio'||k==='bgImg'||k==='music'||k==='custom')?(v?1:0):v);
 const cl=v=>Array.isArray(v)?v.map(cl):(v&&typeof v==='object')?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,cl(x)])):v;
 const fm=n=>{n=Math.max(0,Math.round(n));return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')};
 function setHead(t){const f=Math.min(1,Math.max(0,t/TL.span));$('#head').style.left='calc(var(--lw) + (100% - var(--lw) - 13px)*'+f+')';$('#tt').textContent=fm(t)+' / '+fm(TL.total)}
@@ -179,7 +179,8 @@ function ui(){
  const k=key();if(k!==hkey){hist.length=hi+1;hist.push(cl(P));hi=hist.length-1;if(hist.length>60){hist.shift();hi--}hkey=k}
  $('#undo').disabled=hi<1;$('#redo').disabled=hi>=hist.length-1;
  redraw();persist()}
-$('#lib').innerHTML=Object.keys(D).map(k=>'<button data-k="'+k+'"><img src="'+D[k].exps[0]+'" alt=""><span><b>'+D[k].name+'</b><br><small>'+D[k].role+'</small></span></button>').join('');
+function buildLib(){$('#lib').innerHTML=Object.keys(D).map(k=>'<button data-k="'+k+'"><img src="'+D[k].exps[0]+'" alt=""><span><b>'+D[k].name+'</b><br><small>'+D[k].role+'</small></span></button>').join('');}
+buildLib();
 $('#bgs').innerHTML=BGN.map((n,i)=>{const k=document.createElement('canvas');k.width=120;k.height=160;bgDraw(k.getContext('2d'),120,160,{bg:i});return '<button data-b="'+i+'" title="'+n+'"><img src="'+k.toDataURL('image/jpeg',.8)+'" alt="'+n+'"></button>'}).join('');
 $('#lib').onclick=e=>{const b=e.target.closest('button');if(!b)return;const k=b.dataset.k,ex=sc().chars.findIndex(c=>c.id===k);
  if(ex>=0)sel=ex;else{sc().chars.push({id:k,pose:0,x:[50,25,75,12,88][sc().chars.length%5],y:portrait()?80:94,s:1,flip:false});sel=sc().chars.length-1}ui()};
@@ -212,7 +213,7 @@ $('#sbuild').onclick=()=>{const r=parseScript($('#stx').value);if(!r.scenes.leng
 $('#bsave').onclick=()=>saveFile(slug()+'.json',JSON.stringify(P));
 $('#bload').onclick=()=>$('#fproj').click();
 $('#fproj').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
- try{const j=JSON.parse(await f.text());if(!j||!Array.isArray(j.scenes)||!j.scenes.length)throw 0;
+ try{const j=JSON.parse(await f.text());if(!j||!Array.isArray(j.scenes)||!j.scenes.length)throw 0;if(window.Toonora&&Toonora.regCustom)Toonora.regCustom(j.custom);
   j.scenes.forEach(s=>{s.chars=(Array.isArray(s.chars)?s.chars:[]).filter(c=>D[c.id]);s.lines=(Array.isArray(s.lines)?s.lines:[]).filter(l=>D[l.id]&&typeof l.text==='string');s.bg=Math.min(2,Math.max(0,s.bg|0));s.items=Array.isArray(s.items)?s.items:[];s.chars.forEach(c=>{c.pose=Math.min(Math.max(c.pose|0,0),D[c.id].poses.length-1);c.x=+c.x||50;c.y=+c.y||94;c.s=+c.s||1})});
   P=Object.assign(base(),j);if(P.aspect!=='9:16')P.aspect='16:9';cur=0;sel=-1;await loadMusic();applyAspect();ui();msg('Project loaded.')}
  catch(x){msg('That file is not a Toonora project.')}};
